@@ -29,10 +29,10 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await axios.post('/api/register', {
-        name: form.name,
-        email: form.email,
-        password: form.password
+      await axios.post('http://localhost:8081/user/register', {
+        Email: form.email,
+        Username: form.name,
+        Password: form.password
       });
       navigate('/login', { replace: true });
     } catch (err) {

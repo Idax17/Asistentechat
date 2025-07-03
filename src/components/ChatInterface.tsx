@@ -14,6 +14,7 @@ const ChatInterface: React.FC = () => {
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
+  const [tipoRespuesta, setTipoRespuesta] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -301,6 +302,19 @@ Estoy aquí para ayudarte a alcanzar tus metas académicas. ¡Cuéntame más!`;
       {/* Input */}
       <div className="bg-white border-t border-gray-200 p-4">
         <div className="flex space-x-3">
+          
+        <div className="mb-2 flex justify-end">
+          <select
+            className="px-2 py-1 rounded-lg border text-xs bg-gray-100"
+            value={tipoRespuesta}
+              onChange={e => setTipoRespuesta(e.target.value)}
+              aria-label='Tipo De Respuesta'
+          >
+            <option value="Guia">Tutor</option>
+            <option value="Investigativo">Investigacion</option>
+          </select>
+        </div>
+
           <input
             type="text"
             value={inputMessage}

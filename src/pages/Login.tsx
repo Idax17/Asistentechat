@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import axios from 'axios';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,8 +18,13 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
-      // TODO: reemplaza con tu llamada real a la API
-      //await fakeAuth(form);
+      const loginEndpoint = 'http://localhost:8081/user/login';
+    await axios.post(loginEndpoint, form, {
+      withCredentials: true, // importante para cookies de sesión
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
       navigate('/assistant');
     } catch {
       setError('Email o contraseña incorrectos');
@@ -101,17 +107,5 @@ const Login = () => {
     </div>
   );
 };
-
-// Simulación de autenticación
-const fakeAuth = ({ email, password }: { email: string; password: string }): Promise<void> =>
-  new Promise((res, rej) =>
-    setTimeout(
-      () =>
-        email === 'test@example.com' && password === 'password'
-          ? res()
-          : rej(),
-      1200
-    )
-  );
 
 export default Login;

@@ -28,6 +28,25 @@ function App() {
     document.body.removeChild(link);
   };
 
+  // Define the features array for the features section
+  const features = [
+    {
+      icon: GraduationCap,
+      title: 'Consulta de Materias',
+      description: 'Accede a información detallada de cada materia, incluyendo contenidos, profesores y recursos recomendados.',
+    },
+    {
+      icon: FileText,
+      title: 'Recursos de Estudio',
+      description: 'Descarga materiales, guías y manuales para complementar tu aprendizaje en cada asignatura.',
+    },
+    {
+      icon: ArrowRight,
+      title: 'Horarios y Progreso',
+      description: 'Consulta tus horarios de clases y lleva un seguimiento de tu avance académico de manera sencilla.',
+    },
+  ];
+
   const renderContent = () => {
     switch (activeSection) {
       case 'chat':
@@ -69,10 +88,19 @@ function App() {
               <p className="text-xs font-medium text-gray-500">Capacidades:</p>
               <ul className="text-xs text-gray-600 mt-1 space-y-1">
                 <li>• Consultas académicas</li>
-                <li>• Horarios de clases</li>
                 <li>• Material de estudio</li>
               </ul>
             </div>
+
+            <div className="mt-6 w-full max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-2 border border-gray-100">
+              <h4 className="text-xs font-semibold text-gray-500 mb-2">Historial</h4>
+              <ul className="text-xs text-gray-700 space-y-1">
+                <li>¿Cómo mejorar en matemáticas?</li>
+                <li>¿Qué técnicas de estudio recomiendas?</li>
+                <li>¿Cómo organizar mi horario?</li>
+              </ul>
+            </div>
+          
           </div>
         </div>
       </div>

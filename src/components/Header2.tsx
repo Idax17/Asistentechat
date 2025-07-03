@@ -47,13 +47,16 @@ const Header: React.FC = () => {
           >
             <Settings className="h-5 w-5" />
           </button>
+          
           <button
-            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Perfil de usuario"
-            aria-label="Perfil de usuario"
-          >
-            <User className="h-5 w-5" />
-          </button>
+          className="p-2 w-full bg-red-100 text-red-900 py-2 rounded-lg font-semibold hover:bg-red-100 transition"
+          onClick={() => {
+            // Aquí va la lógica de logout (axios/fetch al backend y redirección)
+            window.location.href = '/';
+            }}
+          aria-label="Logout"
+          > Cerrar sesión </button>
+              
         </div>
       </div>
     </header>
