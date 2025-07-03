@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import Header from '../components/Header';
 import { ChevronDown, ChevronUp, BookOpen, Clock, Users, GraduationCap } from 'lucide-react';
 import { subjects, semesters } from '../data/subjects';
 import SubjectCard from '../components/SubjectCard';
@@ -57,7 +58,11 @@ const Subjects = () => {
   };
 
   return (
-    <div className="min-h-screen py-12 bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <Header />
+      <br></br>
+      <br></br>
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">

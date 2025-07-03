@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Header from '../components/Header';
 import { Link } from 'react-router-dom';
 import { 
   BookOpen, 
@@ -70,7 +71,9 @@ const Home = () => {
   }, []);
 
   return (
+    
     <div className="min-h-screen">
+      <Header />
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800"></div>
