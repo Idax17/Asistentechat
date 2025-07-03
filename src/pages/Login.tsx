@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 
@@ -8,10 +8,11 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleChange = e =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleChange = (e: { target: { name: any; value: any; }; }) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -102,7 +103,7 @@ const Login = () => {
 };
 
 // Simulación de autenticación
-const fakeAuth = ({ email, password }) =>
+const fakeAuth = ({ email, password }: { email: string; password: string }): Promise<void> =>
   new Promise((res, rej) =>
     setTimeout(
       () =>

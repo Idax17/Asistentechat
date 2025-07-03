@@ -1,6 +1,7 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/Header';
+import { useLocation } from 'react-router-dom';
+//import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Subjects from './pages/Subjects';
@@ -9,8 +10,8 @@ import Login from "./pages/Login";
 import Register from './pages/Register';
 import ForgotPassword from './pages/Forgotpassword';
 
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+
+
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();

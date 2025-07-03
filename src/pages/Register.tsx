@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 
@@ -13,10 +14,11 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleChange = e =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleChange = (e: { target: { name: any; value: any; }; }) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     setError('');
 
@@ -34,7 +36,11 @@ const Register = () => {
       });
       navigate('/login', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al registrar usuario');
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Error al registrar usuario');
+      } else {
+        setError('Error al registrar usuario');
+      }
     } finally {
       setLoading(false);
     }

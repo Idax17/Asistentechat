@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Header from '../components/Header2';
 import Sidebar from '../components/Sidebar';
 import ChatInterface from '../components/ChatInterface';
@@ -6,10 +6,10 @@ import SubjectsView from '../components/SubjectsView';
 import ResourcesView from '../components/ResourcesView';
 import ScheduleView from '../components/ScheduleView';
 import chatboxImg from '../data/chatboxis.png';
-import { GraduationCap, Settings, User, ArrowRight , FileText} from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { GraduationCap, ArrowRight , FileText} from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-import { useEffect } from 'react';
+//import { useEffect } from 'react';
 
 function App() {
   const [activeSection, setActiveSection] = useState('chat');
@@ -143,6 +143,7 @@ function App() {
                 key={index}
                 className="group p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-blue-100"
               >
+              
                 <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-xl w-fit mb-6 group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="h-8 w-8 text-white" />
                 </div>

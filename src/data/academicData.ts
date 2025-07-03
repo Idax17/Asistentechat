@@ -46,21 +46,25 @@ export const studyTips = [
   {
     title: "Técnica Pomodoro",
     description: "Estudia 25 minutos, descansa 5. Repite 4 veces y toma un descanso largo.",
-    icon: "Clock"
+    icon: "Clock",
+    tip: ''
   },
   {
     title: "Mapas Mentales",
     description: "Organiza la información visualmente para mejor comprensión y memorización.",
-    icon: "Brain"
+    icon: "Brain",
+    tip: ''
   },
   {
     title: "Estudio Activo",
     description: "Explica conceptos en voz alta, haz preguntas y resuelve problemas.",
-    icon: "MessageSquare"
+    icon: "MessageSquare",
+    tip: ''
   },
   {
     title: "Ambiente de Estudio",
     description: "Mantén un espacio limpio, bien iluminado y libre de distracciones.",
-    icon: "Home"
+    icon: "Home",
+    tip: ''
   }
 ];

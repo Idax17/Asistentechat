@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Lightbulb, BookOpen, Clock } from 'lucide-react';
 import { Message } from '../types';
 import { commonQuestions, studyTips } from '../data/academicData';
+import { GraduationCap, ArrowRight , FileText} from 'lucide-react';
 
 const ChatInterface: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -312,6 +313,7 @@ Estoy aquí para ayudarte a alcanzar tus metas académicas. ¡Cuéntame más!`;
             onClick={handleSendMessage}
             disabled={!inputMessage.trim()}
             className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            aria-label='x'
           >
             <Send className="h-5 w-5" />
           </button>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { GraduationCap, Settings, User } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link} from 'react-router-dom';
 
 const Header: React.FC = () => {
 
@@ -40,10 +40,18 @@ const Header: React.FC = () => {
               ))}
             </nav>
 
-          <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Configuración"
+            aria-label="Configuración"
+          >
             <Settings className="h-5 w-5" />
           </button>
-          <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Perfil de usuario"
+            aria-label="Perfil de usuario"
+          >
             <User className="h-5 w-5" />
           </button>
         </div>

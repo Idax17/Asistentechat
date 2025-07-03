@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Header from '../components/Header';
-import { ChevronDown, ChevronUp, BookOpen, Clock, Users, GraduationCap } from 'lucide-react';
+import { ChevronDown, ChevronUp, BookOpen, GraduationCap } from 'lucide-react';
 import { subjects, semesters } from '../data/subjects';
 import SubjectCard from '../components/SubjectCard';
 import SearchAndFilter from '../components/SearchAndFilter';
