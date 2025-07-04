@@ -1,9 +1,11 @@
 import React from 'react';
 import { GraduationCap, Settings, User } from 'lucide-react';
-import { Link} from 'react-router-dom';
+import { Link, useNavigate} from 'react-router-dom';
+import axios from 'axios';
 
 const Header: React.FC = () => {
 
+  const navigate = useNavigate();
   const navigation = [
     { name: 'Biblioteca', href: '/' },
   ];
@@ -51,8 +53,14 @@ const Header: React.FC = () => {
           <button
           className="p-2 w-full bg-red-100 text-red-900 py-2 rounded-lg font-semibold hover:bg-red-100 transition"
           onClick={() => {
-            // Aquí va la lógica de logout (axios/fetch al backend y redirección)
-            window.location.href = '/';
+              axios.get('http://localhost:8081/user/logout', {
+                withCredentials: true,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              })
+            //window.location.href = '/';
+            navigate('/');
             }}
           aria-label="Logout"
           > Cerrar sesión </button>

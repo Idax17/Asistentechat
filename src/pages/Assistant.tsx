@@ -9,10 +9,16 @@ import chatboxImg from '../data/chatboxis.png';
 import { GraduationCap, ArrowRight , FileText} from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-//import { useEffect } from 'react';
+import { useEffect } from 'react';
+import axios from 'axios';
 
 function App() {
   const [activeSection, setActiveSection] = useState('chat');
+  const [conversations, setConversations] = useState<number[]>([]);
+  const [loadingConvs, setLoadingConvs] = useState(false);
+  const [selectedConv, setSelectedConv] = useState<number | null>(null);
+  const [convHistory, setConvHistory] = useState<{Consulta: string; Respuesta: string;}[]>([]);
+  //const [loadingHistory, setLoadingHistory] = useState(false);
 
   // Función para descargar PDFs
   const downloadPDF = (fileName: string) => {
@@ -47,6 +53,75 @@ function App() {
     },
   ];
 
+  // Obtener conversaciones al montar
+  useEffect(() => {
+    if (activeSection === 'chat') {
+      setLoadingConvs(true);
+      axios.get('http://localhost:8081/user/number_conversations', {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(res => setConversations(Array.from(new Set(res.data.Conversaciones))))
+        .catch(() => setConversations([]))
+        .finally(() => setLoadingConvs(false));
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
+    if (activeSection === 'chat' && selectedConv === null && !loadingConvs) {
+      axios.get('http://localhost:8081/user/new_conversation', {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/json' },
+      })
+        .then(res => {
+          setSelectedConv(res.data.id);
+          setConvHistory([]);
+          setConversations(prev => prev.includes(res.data.id) ? prev : [...prev, res.data.id]);
+        });
+    }
+  }, [activeSection, selectedConv, loadingConvs]);
+
+  // Obtener historial de una conversación
+  const handleSelectConversation = (id: number) => {
+    setSelectedConv(id);
+    //setLoadingHistory(true);
+    axios.get(`http://localhost:8081/user/conversation/${id}`, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => setConvHistory(res.data.Historial))
+      .catch(() => setConvHistory([]))
+      //.finally(() => setLoadingHistory(false));
+  };
+
+  // Iniciar nueva conversación
+  const handleNewConversation = () => {
+    axios.get('http://localhost:8081/user/new_conversation', {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => {
+        setSelectedConv(res.data.id);
+        setConvHistory([]);
+        setConversations(prev => prev.includes(res.data.id) ? prev : [...prev, res.data.id]);
+      });
+  };
+
+  const reloadConversationHistory = (id: number) => {
+    axios.get(`http://localhost:8081/user/conversation/${id}`, {
+      withCredentials: true,
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then(res => setConvHistory(res.data.Historial))
+      .catch(() => setConvHistory([]));
+  };
+
   const renderContent = () => {
     switch (activeSection) {
       case 'chat':
@@ -69,7 +144,14 @@ function App() {
       <div className="flex-1 flex flex-col md:flex-row gap-6">
         {/* Panel de la interfaz de chat (toma todo el espacio disponible) */}
         <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <ChatInterface />
+        <ChatInterface
+          conversationId={selectedConv}
+            conversationHistory={convHistory}
+            setConversationHistory={setConvHistory}
+          reloadConversationHistory={() => {
+            if (selectedConv) reloadConversationHistory(selectedConv);
+          }}
+        />
         </div>
         
         {/* Panel lateral con información del chatbot (solo visible en desktop) */}
@@ -94,13 +176,31 @@ function App() {
 
             <div className="mt-6 w-full max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-2 border border-gray-100">
               <h4 className="text-xs font-semibold text-gray-500 mb-2">Historial</h4>
-              <ul className="text-xs text-gray-700 space-y-1">
-                <li>¿Cómo mejorar en matemáticas?</li>
-                <li>¿Qué técnicas de estudio recomiendas?</li>
-                <li>¿Cómo organizar mi horario?</li>
-              </ul>
+              {loadingConvs ? (
+                <div className="text-xs text-gray-400">Cargando...</div>
+              ) : (
+                <ul className="text-xs text-gray-700 space-y-1">
+                  {conversations.map(id => (
+                    <li key={id}>
+                      <button
+                        className={`w-full text-left px-2 py-1 rounded hover:bg-blue-100 transition ${selectedConv === id ? 'bg-blue-200 font-bold' : ''}`}
+                        onClick={() => handleSelectConversation(id)}
+                      >
+                        Conversación #{id}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <button
+                className="mt-3 w-full bg-green-100 text-green-700 py-1 rounded-lg font-semibold hover:bg-green-200 transition text-xs"
+                onClick={handleNewConversation}
+              >
+                Iniciar Nueva Conversación
+              </button>
             </div>
-          
+            {/* Detalle de la conversación seleccionada */}
+                      
           </div>
         </div>
       </div>
@@ -257,7 +357,14 @@ function App() {
           </div>
         );
       default:
-        return <ChatInterface />;
+        return <ChatInterface
+        conversationId={selectedConv}
+        conversationHistory={convHistory}
+        setConversationHistory={setConvHistory}
+        reloadConversationHistory={() => {
+          if (selectedConv) reloadConversationHistory(selectedConv);
+        }}
+      />;
     }
   };
 

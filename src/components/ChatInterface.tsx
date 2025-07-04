@@ -2,9 +2,21 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Lightbulb, BookOpen, Clock } from 'lucide-react';
 import { Message } from '../types';
 import { commonQuestions, studyTips } from '../data/academicData';
-import { GraduationCap, ArrowRight , FileText} from 'lucide-react';
+import axios from 'axios';
 
-const ChatInterface: React.FC = () => {
+interface ChatInterfaceProps {
+  conversationId: number | null;
+  conversationHistory: { Consulta: string; Respuesta: string }[];
+  setConversationHistory: React.Dispatch<React.SetStateAction<{ Consulta: string; Respuesta: string }[]>>;
+  reloadConversationHistory: () => void
+}
+
+const ChatInterface: React.FC<ChatInterfaceProps> = ({
+  conversationId,
+  conversationHistory,
+  setConversationHistory,
+  reloadConversationHistory,
+}) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -14,10 +26,13 @@ const ChatInterface: React.FC = () => {
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
-  const [tipoRespuesta, setTipoRespuesta] = useState('');
+  const [tipoRespuesta, setTipoRespuesta] = useState('1'); // Valor por defecto: 1 (Tutor)
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  
   /*
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -177,34 +192,79 @@ Por ejemplo, podrías preguntar:
 Estoy aquí para ayudarte a alcanzar tus metas académicas. ¡Cuéntame más!`;
   };
 
-  // Resto del componente permanece igual...
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: inputMessage,
-      sender: 'user',
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
+    if (!inputMessage.trim() || !conversationId) return;
+    setError(null);
+    setLoading(true);
     setIsTyping(true);
 
-    // Simulate typing delay
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: generateResponse(inputMessage),
-        sender: 'assistant',
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
+    setConversationHistory(prev => [
+      ...prev,
+      { Consulta: inputMessage, Respuesta: 'Pensando...' }
+    ]);
+
+    try {
+      await axios.post(
+        'http://localhost:8081/consult/gemini',
+        {
+          Consulta: inputMessage,
+          ConsultUID: conversationId.toString(),
+          Precision: tipoRespuesta.toString()
+        },
+        {
+          withCredentials: true,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+      // Recarga el historial real desde el backend
+      reloadConversationHistory();
+      setInputMessage('');
+    } catch (err: unknown) {
+      setConversationHistory(prev => {
+        const updated = [...prev];
+        const idx = updated.findIndex(
+          item => item.Consulta === inputMessage && item.Respuesta === 'Pensando...'
+        );
+        if (idx !== -1) {
+          updated[idx] = { ...updated[idx], Respuesta: 'Error al obtener respuesta. Intenta de nuevo.' };
+        }
+        return updated;
+      });
+      setError('Error al enviar la consulta. Intenta de nuevo.');
+    } finally {
       setIsTyping(false);
-    }, 1500);
+      setLoading(false);
+    }
   };
+
+  
+  // Limpia el loader si cambias de conversación
+  useEffect(() => {
+    setIsTyping(false);
+  }, [conversationId]);
+
+  const messagesToShow = conversationId && conversationHistory.length > 0
+  ? conversationHistory.flatMap((item, idx) => [
+      {
+        id: `u${idx}`,
+        sender: 'user',
+        content: item.Consulta,
+        timestamp: new Date(),
+      },
+      {
+        id: `a${idx}`,
+        sender: 'assistant',
+        content: item.Respuesta,
+        timestamp: new Date(),
+      },
+    ])
+    : messages;
+  
+    /* useEffect(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, [messagesToShow]); */
 
   const handleQuestionClick = (question: string) => {
     setInputMessage(question);
@@ -229,44 +289,52 @@ Estoy aquí para ayudarte a alcanzar tus metas académicas. ¡Cuéntame más!`;
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div className={`flex max-w-xs lg:max-w-md ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <div className={`flex-shrink-0 ${message.sender === 'user' ? 'ml-3' : 'mr-3'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  message.sender === 'user' 
-                    ? 'bg-blue-500' 
-                    : 'bg-gradient-to-r from-purple-500 to-blue-500'
-                }`}>
-                  {message.sender === 'user' ? (
-                    <User className="h-4 w-4 text-white" />
-                  ) : (
-                    <Bot className="h-4 w-4 text-white" />
-                  )}
+      <div
+        className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[600px] min-h-[350px]"
+        ref={messagesEndRef}
+      >
+        {messagesToShow.map((message, idx) => {
+          // Usa message.id si existe, si no, el índice
+          const key = `${message.id}-${idx}`;
+          // Si no hay timestamp, usa la hora actual
+          const timestamp = message.timestamp instanceof Date ? message.timestamp : new Date();
+          return (
+            <div
+              key={key}
+              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`flex max-w-xs lg:max-w-md ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`flex-shrink-0 ${message.sender === 'user' ? 'ml-3' : 'mr-3'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    message.sender === 'user' 
+                      ? 'bg-blue-500' 
+                      : 'bg-gradient-to-r from-purple-500 to-blue-500'
+                  }`}>
+                    {message.sender === 'user' ? (
+                      <User className="h-4 w-4 text-white" />
+                    ) : (
+                      <Bot className="h-4 w-4 text-white" />
+                    )}
+                  </div>
+                </div>
+                <div
+                  className={`px-4 py-2 rounded-lg ${
+                    message.sender === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-800 shadow-sm border border-gray-200'
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-line">{message.content}</p>
+                  <p className={`text-xs mt-1 ${
+                    message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+                  }`}>
+                    {timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
                 </div>
               </div>
-              <div
-                className={`px-4 py-2 rounded-lg ${
-                  message.sender === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-800 shadow-sm border border-gray-200'
-                }`}
-              >
-                <p className="text-sm whitespace-pre-line">{message.content}</p>
-                <p className={`text-xs mt-1 ${
-                  message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
-                }`}>
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              </div>
             </div>
-          </div>
-        ))}
-        
+          );
+        })}
         {isTyping && (
           <div className="flex justify-start">
             <div className="flex mr-3">
@@ -283,7 +351,6 @@ Estoy aquí para ayudarte a alcanzar tus metas académicas. ¡Cuéntame más!`;
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Study Tips Sidebar - Ahora rotativo */}
@@ -303,17 +370,15 @@ Estoy aquí para ayudarte a alcanzar tus metas académicas. ¡Cuéntame más!`;
       <div className="bg-white border-t border-gray-200 p-4">
         <div className="flex space-x-3">
           
-        <div className="mb-2 flex justify-end">
           <select
-            className="px-2 py-1 rounded-lg border text-xs bg-gray-100"
+            className="px-4 py-2 rounded-lg border text-xs bg-gray-100"
             value={tipoRespuesta}
-              onChange={e => setTipoRespuesta(e.target.value)}
-              aria-label='Tipo De Respuesta'
+            onChange={e => setTipoRespuesta(e.target.value)}
+            aria-label='Tipo De Respuesta'
           >
-            <option value="Guia">Tutor</option>
-            <option value="Investigativo">Investigacion</option>
+            <option value="1">Tutor</option>
+            <option value="2">Investigativo</option>
           </select>
-        </div>
 
           <input
             type="text"
@@ -322,16 +387,20 @@ Estoy aquí para ayudarte a alcanzar tus metas académicas. ¡Cuéntame más!`;
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder="Escribe tu pregunta académica..."
             className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            disabled={loading}
           />
           <button
             onClick={handleSendMessage}
-            disabled={!inputMessage.trim()}
+            disabled={!inputMessage.trim() || loading}
             className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             aria-label='x'
           >
             <Send className="h-5 w-5" />
           </button>
         </div>
+        {error && (
+          <div className="text-red-500 text-xs mt-2">{error}</div>
+        )}
       </div>
     </div>
   );
