@@ -1,96 +1,138 @@
 import React, { useState } from 'react';
 import { FileText, Video, Link, BookOpen, Search, Filter, Download } from 'lucide-react';
-import { academicResources, academicSubjects } from '../data/academicData';
+
+// Definición de tipos para TypeScript
+type ResourceType = 'document' | 'video' | 'playlist' | 'link';
+
+interface AcademicResource {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  type: ResourceType;
+  url: string;
+  thumbnail?: string;
+  duration?: string;
+  author?: string;
+  videoCount?: number;
+  downloadUrl?: string | null;
+}
+
+interface Subject {
+  id: string;
+  name: string;
+}
 
 const ResourcesView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
+  const [selectedResource, setSelectedResource] = useState<AcademicResource | null>(null);
 
-  const getResourceIcon = (type: string) => {
-    switch (type) {
-      case 'document':
-        return <FileText className="h-5 w-5" />;
-      case 'video':
-        return <Video className="h-5 w-5" />;
-      case 'link':
-        return <Link className="h-5 w-5" />;
-      default:
-        return <BookOpen className="h-5 w-5" />;
-    }
-  };
-
-  const getResourceColor = (type: string) => {
-    switch (type) {
-      case 'document':
-        return 'text-blue-600 bg-blue-100';
-      case 'video':
-        return 'text-red-600 bg-red-100';
-      case 'link':
-        return 'text-green-600 bg-green-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
-  };
-
-  // Recursos académicos con enlaces reales
-  const realAcademicResources = [
-    {
-      id: '1',
-      title: 'Cálculo Diferencial - Apuntes Completo',
-      description: 'Documento con todos los temas de cálculo diferencial',
-      subject: 'Cálculo I',
-      type: 'document',
-      url: 'https://www.math.cuhk.edu.hk/course_builder/1516/math1010c/calculus_notes.pdf',
-      downloadUrl: 'https://www.math.cuhk.edu.hk/course_builder/1516/math1010c/calculus_notes.pdf'
-    },
-    {
-      id: '2',
-      title: 'Física Universitaria - Volumen 1',
-      description: 'Libro completo de física universitaria',
-      subject: 'Física I',
-      type: 'document',
-      url: 'https://www.fisica.unam.mx/personales/fisicavirtual/libros/Fisica_Universitaria_Vol1.pdf',
-      downloadUrl: 'https://www.fisica.unam.mx/personales/fisicavirtual/libros/Fisica_Universitaria_Vol1.pdf'
-    },
-    {
-      id: '3',
-      title: 'Introducción a la Programación con Python',
-      description: 'Video tutorial completo para principiantes',
-      subject: 'Programación I',
-      type: 'video',
-      url: 'https://www.youtube.com/watch?v=rfscVS0vtbw',
-      downloadUrl: null
-    },
-    {
-      id: '4',
-      title: 'Álgebra Lineal - MIT OpenCourseWare',
-      description: 'Curso completo de álgebra lineal del MIT',
-      subject: 'Álgebra Lineal',
-      type: 'link',
-      url: 'https://ocw.mit.edu/courses/mathematics/18-06-linear-algebra-spring-2010/',
-      downloadUrl: null
-    },
-    {
-      id: '5',
-      title: 'Ejercicios Resueltos de Química General',
-      description: 'Colección de problemas con soluciones',
-      subject: 'Química General',
-      type: 'document',
-      url: 'https://web.ua.es/es/giem/wp-content/uploads/sites/17/2018/05/ejercicios-resueltos-quimica-general.pdf',
-      downloadUrl: 'https://web.ua.es/es/giem/wp-content/uploads/sites/17/2018/05/ejercicios-resueltos-quimica-general.pdf'
-    },
-    {
-      id: '6',
-      title: 'Estructuras de Datos - CS50',
-      description: 'Clase magistral sobre estructuras de datos',
-      subject: 'Programación I',
-      type: 'video',
-      url: 'https://www.youtube.com/watch?v=3uGchQbk7g8',
-      downloadUrl: null
-    }
+  // Datos de materias académicas
+  const academicSubjects: Subject[] = [
+    { id: '1', name: 'Cálculo I' },
+    { id: '2', name: 'Álgebra Lineal' },
+    { id: '3', name: 'Programación' },
+    { id: '4', name: 'Física I' },
+    { id: '5', name: 'Química General' }
   ];
 
-  const filteredResources = realAcademicResources.filter(resource => {
+  const academicResources: Record<string, AcademicResource[]> = {
+  mathematics: [
+    {
+      id: 'math1',
+      title: 'Cálculo Diferencial - Curso Completo',
+      description: 'Curso desde cero con ejemplos prácticos',
+      subject: 'Cálculo I',
+      type: 'playlist',
+      url: 'https://www.youtube.com/watch?v=ZSYQ13iMbYA',
+      thumbnail: 'https://i.ytimg.com/vi/9QeJBkrHlxA/hqdefault.jpg',
+      videoCount: 45,
+      author: 'El Físico Gamer'
+    },
+    {
+      id: 'math2',
+      title: 'Álgebra Lineal desde Cero',
+      description: 'Fundamentos con aplicaciones prácticas',
+      subject: 'Álgebra Lineal',
+      type: 'playlist',
+      url: 'https://www.youtube.com/playlist?list=PLIb_io8a5NB2DddFf-PwvZDCOUNT1GZoA',
+      videoCount: 28,
+      author: 'Ingeniería Para Todos'
+    }
+  ],
+  programming: [
+    {
+      id: 'prog1',
+      title: 'Python para Principiantes',
+      description: 'Curso completo desde cero',
+      subject: 'Programación',
+      type: 'playlist',
+      url: 'https://www.youtube.com/playlist?list=PLU8oAlHdN5BlvPxziopYZRd55pdqFwkeS',
+      videoCount: 58,
+      author: 'Píldoras Informáticas'
+    },
+    {
+      id: 'prog2',
+      title: 'Algoritmos y Estructuras de Datos',
+      description: 'Explicación detallada en español',
+      subject: 'Programación',
+      type: 'playlist',
+      url: 'https://www.youtube.com/watch?v=aLh6tP07RrI&list=PLO3R5XK6X_ThZXV4HAK66Ja80aQsFqxeq',
+      videoCount: 15,
+      author: 'Alvaro Hergenreder'
+    }
+  ],
+  physics: [
+  {
+    id: 'phy1',
+    title: 'Física Universitaria - Curso Completo',
+    description: 'Desde mecánica clásica hasta termodinámica',
+    subject: 'Física I',
+    type: 'playlist',
+    url: 'https://www.youtube.com/watch?v=nSYCcJESDrU',
+    videoCount: 72,
+    author: 'Física con Juan'
+  },
+  {
+    id: 'phy3',
+    title: 'Electromagnetismo',
+    description: 'Teoría y aplicaciones prácticas',
+    subject: 'Física II',
+    type: 'playlist',
+    url: 'https://www.youtube.com/watch?v=_lrWIogPNFo',
+    videoCount: 28,
+    author: 'Física con Christian Rodríguez'
+  },
+],
+
+};
+
+  // Aplanar todos los recursos para búsqueda y filtrado
+  const allResources = Object.values(academicResources).flat();
+
+  // Funciones auxiliares
+  const getResourceIcon = (type: ResourceType) => {
+    switch (type) {
+      case 'document': return <FileText className="h-5 w-5" />;
+      case 'video': return <Video className="h-5 w-5" />;
+      case 'playlist': return <Video className="h-5 w-5" />;
+      case 'link': return <Link className="h-5 w-5" />;
+      default: return <BookOpen className="h-5 w-5" />;
+    }
+  };
+
+  const getResourceColor = (type: ResourceType) => {
+    switch (type) {
+      case 'document': return 'text-blue-600 bg-blue-100';
+      case 'video': 
+      case 'playlist': return 'text-red-600 bg-red-100';
+      case 'link': return 'text-green-600 bg-green-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
+  const filteredResources = allResources.filter(resource => {
     const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          resource.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSubject = selectedSubject === 'all' || resource.subject === selectedSubject;
@@ -101,7 +143,7 @@ const ResourcesView: React.FC = () => {
     window.open(url, '_blank');
   };
 
-  const handleDownload = (url: string | null, title: string) => {
+  const handleDownload = (url: string | null | undefined, title: string) => {
     if (!url) return;
     
     const link = document.createElement('a');
@@ -110,6 +152,10 @@ const ResourcesView: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const getResourceCountByType = (type: ResourceType) => {
+    return allResources.filter(r => r.type === type).length;
   };
 
   return (
@@ -158,7 +204,7 @@ const ResourcesView: React.FC = () => {
             </div>
             <h3 className="font-semibold text-gray-900 mb-1">Documentos</h3>
             <p className="text-2xl font-bold text-blue-600">
-              {realAcademicResources.filter(r => r.type === 'document').length}
+              {getResourceCountByType('document')}
             </p>
           </div>
 
@@ -168,7 +214,7 @@ const ResourcesView: React.FC = () => {
             </div>
             <h3 className="font-semibold text-gray-900 mb-1">Videos</h3>
             <p className="text-2xl font-bold text-red-600">
-              {realAcademicResources.filter(r => r.type === 'video').length}
+              {getResourceCountByType('video') + getResourceCountByType('playlist')}
             </p>
           </div>
 
@@ -178,7 +224,7 @@ const ResourcesView: React.FC = () => {
             </div>
             <h3 className="font-semibold text-gray-900 mb-1">Enlaces</h3>
             <p className="text-2xl font-bold text-green-600">
-              {realAcademicResources.filter(r => r.type === 'link').length}
+              {getResourceCountByType('link')}
             </p>
           </div>
 
@@ -188,7 +234,7 @@ const ResourcesView: React.FC = () => {
             </div>
             <h3 className="font-semibold text-gray-900 mb-1">Ejercicios</h3>
             <p className="text-2xl font-bold text-purple-600">
-              {realAcademicResources.filter(r => r.type === 'document' && r.title.includes('Ejercicios')).length}
+              {allResources.filter(r => r.title.includes('Ejercicios')).length}
             </p>
           </div>
         </div>
@@ -197,21 +243,30 @@ const ResourcesView: React.FC = () => {
         <div className="space-y-4">
           {filteredResources.map((resource) => (
             <div key={resource.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-4">
+              <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+                <div className="flex items-start space-x-4 w-full">
                   <div className={`p-3 rounded-lg ${getResourceColor(resource.type)}`}>
                     {getResourceIcon(resource.type)}
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{resource.title}</h3>
                     <p className="text-gray-600 mb-2">{resource.description}</p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
                       <span className="bg-gray-100 px-2 py-1 rounded">{resource.subject}</span>
                       <span className="capitalize">{resource.type}</span>
+                      {resource.author && (
+                        <span className="bg-gray-100 px-2 py-1 rounded">Por: {resource.author}</span>
+                      )}
+                      {resource.duration && (
+                        <span className="bg-gray-100 px-2 py-1 rounded">Duración: {resource.duration}</span>
+                      )}
+                      {resource.videoCount && (
+                        <span className="bg-gray-100 px-2 py-1 rounded">{resource.videoCount} videos</span>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex flex-shrink-0 gap-2 w-full md:w-auto">
                   {resource.downloadUrl && (
                     <button 
                       onClick={() => handleDownload(resource.downloadUrl, resource.title)}
@@ -223,7 +278,7 @@ const ResourcesView: React.FC = () => {
                   )}
                   <button 
                     onClick={() => handleResourceClick(resource.url)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex-1"
                   >
                     Ver Recurso
                   </button>
@@ -238,6 +293,58 @@ const ResourcesView: React.FC = () => {
             <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron recursos</h3>
             <p className="text-gray-600">Intenta ajustar tus filtros de búsqueda</p>
+          </div>
+        )}
+
+        {/* Modal para recursos */}
+        {selectedResource && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+              <div className="p-4 border-b flex justify-between items-center">
+                <h3 className="text-lg font-bold">{selectedResource.title}</h3>
+                <button 
+                  onClick={() => setSelectedResource(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  &times;
+                </button>
+              </div>
+              
+              <div className="p-4">
+                {selectedResource.type === 'video' || selectedResource.type === 'playlist' ? (
+                  <div className="aspect-w-16 aspect-h-9">
+                    <iframe 
+                      src={`https://www.youtube.com/embed/${
+                        selectedResource.url.includes('list') 
+                          ? `?list=${selectedResource.url.split('list=')[1]}`
+                          : selectedResource.url.split('v=')[1]
+                      }`}
+                      className="w-full h-96"
+                      allowFullScreen
+                      title={selectedResource.title}
+                    />
+                  </div>
+                ) : (
+                  <iframe 
+                    src={selectedResource.url} 
+                    className="w-full h-96" 
+                    frameBorder="0"
+                    title={selectedResource.title}
+                  />
+                )}
+                
+                <div className="mt-4">
+                  <a 
+                    href={selectedResource.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    {selectedResource.type === 'document' ? 'Descargar PDF' : 'Ver en YouTube'}
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

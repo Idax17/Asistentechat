@@ -4,6 +4,43 @@ import { Message } from '../types';
 import { commonQuestions, studyTips } from '../data/academicData';
 import axios from 'axios';
 
+const studyTipss = [
+  {
+    title: "Técnica Pomodoro",
+    tip: "Estudia en bloques de 25 minutos con descansos de 5 minutos. Cada 4 bloques, toma un descanso más largo (15-30 min)."
+  },
+  {
+    title: "Espaciado",
+    tip: "Distribuye tus sesiones de estudio en varios días. Es más efectivo que estudiar todo de una vez."
+  },
+  {
+    title: "Autoexplicación",
+    tip: "Explica el tema en voz alta como si se lo enseñaras a alguien más. Esto refuerza tu comprensión."
+  },
+  {
+    title: "Mapas mentales",
+    tip: "Organiza la información visualmente conectando conceptos clave. Ideal para temas complejos."
+  },
+  {
+    title: "Práctica activa",
+    tip: "Resume lo aprendido sin mirar tus apuntes. Usa preguntas de prueba para evaluarte."
+  },
+  {
+    title: "Enseña a otros",
+    tip: "Explicar el material a un compañero te ayuda a identificar qué dominas y qué necesitas repasar."
+  },
+  {
+    title: "Ambiente adecuado",
+    tip: "Busca un lugar tranquilo, bien iluminado y sin distracciones (como el celular)."
+  },
+  {
+    title: "Analogías",
+    tip: "Relaciona conceptos nuevos con cosas que ya conoces para recordarlos mejor."
+  }
+];
+
+const randomTip = studyTipss[Math.floor(Math.random() * studyTips.length)];
+
 interface ChatInterfaceProps {
   conversationId: number | null;
   conversationHistory: { Consulta: string; Respuesta: string }[];
@@ -26,7 +63,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
-  const [tipoRespuesta, setTipoRespuesta] = useState('1'); // Valor por defecto: 1 (Tutor)
+  const [tipoRespuesta, setTipoRespuesta] = useState(1); // Valor por defecto: 1 (Tutor)
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -208,8 +245,8 @@ Estoy aquí para ayudarte a alcanzar tus metas académicas. ¡Cuéntame más!`;
         'http://localhost:8081/consult/gemini',
         {
           Consulta: inputMessage,
-          ConsultUID: conversationId.toString(),
-          Precision: tipoRespuesta.toString()
+          ConsultUID: conversationId,
+          Precision: tipoRespuesta
         },
         {
           withCredentials: true,
@@ -353,18 +390,18 @@ Estoy aquí para ayudarte a alcanzar tus metas académicas. ¡Cuéntame más!`;
         )}
       </div>
 
-      {/* Study Tips Sidebar - Ahora rotativo */}
-      <div className="bg-white border-t border-gray-200 p-4">
-        <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
-          <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" />
-          Consejo del Día
-        </h4>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-          <p className="text-sm text-gray-700">
-            <strong>{studyTips[Math.floor(Math.random() * studyTips.length)].title}:</strong> {studyTips[Math.floor(Math.random() * studyTips.length)].tip}
-          </p>
-        </div>
-      </div>
+
+<div className="bg-white border-t border-gray-200 p-4">
+  <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+    <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" />
+    Consejo del Día
+  </h4>
+  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+    <p className="text-sm text-gray-700">
+      <strong>{randomTip.title}:</strong> {randomTip.tip}
+    </p>
+  </div>
+</div>
 
       {/* Input */}
       <div className="bg-white border-t border-gray-200 p-4">
@@ -373,19 +410,19 @@ Estoy aquí para ayudarte a alcanzar tus metas académicas. ¡Cuéntame más!`;
           <select
             className="px-4 py-2 rounded-lg border text-xs bg-gray-100"
             value={tipoRespuesta}
-            onChange={e => setTipoRespuesta(e.target.value)}
+            onChange={e => setTipoRespuesta(Number(e.target.value))}
             aria-label='Tipo De Respuesta'
           >
-            <option value="1">Tutor</option>
-            <option value="2">Investigativo</option>
+            <option value = {1} >Tutoria</option>
+            <option value = {2} >Investigador</option>
           </select>
 
           <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Escribe tu pregunta académica..."
+            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+            placeholder="Escriba su consulta..."
             className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={loading}
           />

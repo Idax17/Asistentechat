@@ -19,12 +19,13 @@ const Login = () => {
     setLoading(true);
     try {
       const loginEndpoint = 'http://localhost:8081/user/login';
-    await axios.post(loginEndpoint, form, {
-      withCredentials: true, // importante para cookies de sesión
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+      await axios.post(loginEndpoint, form, {
+        withCredentials: true, // importante para cookies de sesión
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       navigate('/assistant');
     } catch {
       setError('Email o contraseña incorrectos');
