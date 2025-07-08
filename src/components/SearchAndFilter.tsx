@@ -95,6 +95,7 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
                 value={selectedSemester || ''}
                 onChange={(e) => onSemesterChange(e.target.value ? parseInt(e.target.value) : null)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                aria-label='semestre'
               >
                 <option value="">Todos los semestres</option>
                 {semesters.map(semester => (
@@ -114,6 +115,7 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
                 value={selectedType || ''}
                 onChange={(e) => onTypeChange(e.target.value || null)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                aria-label='tipo-materia'
               >
                 <option value="">Todos los tipos</option>
                 {types.map(type => (
@@ -133,6 +135,7 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
                 value={selectedDifficulty || ''}
                 onChange={(e) => onDifficultyChange(e.target.value ? parseInt(e.target.value) : null)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                aria-label='dificultad'
               >
                 <option value="">Cualquier dificultad</option>
                 <option value="1">⭐ Muy Fácil</option>
@@ -152,6 +155,7 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
                 value={selectedWorkload || ''}
                 onChange={(e) => onWorkloadChange(e.target.value || null)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                aria-label='carga'
               >
                 <option value="">Cualquier carga</option>
                 {workloads.map(workload => (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { GraduationCap, Menu, X } from 'lucide-react';
 
@@ -6,9 +6,13 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
+  const token = localStorage.getItem('token');
   const navigation = [
-    { name: 'Inicio', href: '/' },
+    { name: 'Inicio',   href: '/' },
     { name: 'Materias', href: '/subjects' },
+    token
+      ? { name: 'Asistente IA', href: '/assistant' }
+      : { name: 'Log In', href: '/login' },
   ];
 
   return (
